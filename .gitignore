@@ -1,0 +1,11 @@
+# macOS metadata
+.DS_Store
+._*
+
+# Office lock files
+~$*
+.~lock.*#
+
+# Editor swap files
+*.swp
+*.swo
