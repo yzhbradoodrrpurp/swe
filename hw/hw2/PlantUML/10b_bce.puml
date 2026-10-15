@@ -1,0 +1,59 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 归还 入库 预约通知协作类图
+top to bottom direction
+hide empty members
+class Book <<entity>>
+class BookCopy <<entity>>
+class BorrowRecord <<entity>>
+class NotifyBoundary <<boundary>> {
++ sendReadyNotices(noticeList): List
++ logFailure(slipId, reason)
+}
+interface NotifyGateway <<external>> {
++ send(contact, message): NotifyResult
+}
+class PurchaseController <<control>> {
++ registerArrival(bookInfo, copyIds): Result
+}
+class PurchaseUI <<boundary>> {
++ registerArrival(bookInfo, copyIds)
+}
+class Reader <<entity>>
+class ReservationController <<control>> {
++ activate(bookId): List<Notice>
+}
+class ReservationRecord <<entity>>
+class ReservationSlip <<entity>>
+class ReturnController <<control>> {
++ confirmReturn(borrowId, copyId): Result
+}
+class ReturnUI <<boundary>> {
++ confirmReturn(borrowId, copyId)
+}
+ReturnUI ..> ReturnController
+PurchaseUI ..> PurchaseController
+ReturnController ..> BorrowRecord
+ReturnController ..> BookCopy
+ReturnController ..> ReservationController
+ReturnController ..> NotifyBoundary
+PurchaseController ..> Book
+PurchaseController ..> BookCopy
+PurchaseController ..> ReservationController
+PurchaseController ..> NotifyBoundary
+ReservationController ..> ReservationSlip
+ReservationController ..> BookCopy
+ReservationController ..> BorrowRecord
+ReservationController ..> ReservationRecord
+ReservationController ..> Reader
+NotifyBoundary ..> NotifyGateway
+@enduml

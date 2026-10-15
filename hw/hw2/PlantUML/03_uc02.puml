@@ -1,0 +1,45 @@
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC02 办理图书借出顺序图
+actor "图书管理员" as A
+boundary LendUI as UI
+control LendController as C
+entity BorrowRecord as Loan
+entity BookCopy as Copy
+entity ReservationSlip as Slip
+A -> UI : queryPending()
+UI -> C : getPending()
+C -> Loan : queryPending()
+Loan --> C : 待借出记录列表
+C --> UI : 列表
+UI --> A : 展示列表
+A -> UI : confirmLend(borrowId, copyId)
+UI -> C : confirmLend(borrowId, copyId)
+C -> Loan : get(borrowId)
+Loan --> C : loan 或 null
+C -> Copy : get(copyId)
+Copy --> C : copy 或 null
+alt 记录待借出 且复本匹配且 RESERVED
+ note over A,UI : 管理员核对实物及读者并确认交付
+ group 原子事务 T2
+  C -> Copy : markOnLoan(copyId)
+  C -> Loan : markOnLoan(borrowId, lentAt)
+  opt 借阅记录关联预约单
+   C -> Slip : markFulfilled(slipId)
+  end
+ end
+ C --> UI : 借出成功
+else 不存在或状态不合法或复本不匹配
+ C --> UI : 拒绝办理，不改变馆藏与记录
+end
+UI --> A : 展示结果
+note over C,Copy : 借出仅 RESERVED -> ON_LOAN，不再次扣减可用数量
+@enduml

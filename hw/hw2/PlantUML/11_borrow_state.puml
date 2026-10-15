@@ -1,0 +1,27 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title BorrowRecord 借阅记录状态图
+state "待借出\nPENDING_LEND" as PENDING_LEND
+state "借出中\nON_LOAN" as ON_LOAN
+state "已完成\nCOMPLETED" as COMPLETED
+[*] --> PENDING_LEND : 可用复本分配成功 / 创建借阅记录
+PENDING_LEND --> ON_LOAN : UC02 管理员确认交付\n/ 记录 lentAt，复本转 ON_LOAN
+ON_LOAN --> COMPLETED : UC05 管理员确认收回\n/ 记录 returnedAt，释放复本
+note right of PENDING_LEND
+来源：直接借书或预约激活
+关联复本必须为 RESERVED
+end note
+note right of COMPLETED
+业务终态，历史记录保留用于报表
+无后续借出或归还转换
+end note
+@enduml

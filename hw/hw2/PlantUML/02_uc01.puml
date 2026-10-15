@@ -1,0 +1,48 @@
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC01 提交借书请求顺序图
+actor "读者" as R
+boundary BorrowUI as UI
+control BorrowController as C
+entity BookCopy as Copy
+entity BorrowRecord as Loan
+entity ReservationSlip as Slip
+entity ReservationRecord as Queue
+R -> UI : submitBorrow(readerId, bookId)
+UI -> C : submitBorrow(readerId, bookId)
+C -> C : 校验读者权限和书目存在
+alt 校验不通过
+ C --> UI : 返回输入或权限错误
+else 输入有效
+ C -> Copy : queryAvailable(bookId)
+ Copy --> C : availableNum
+ group 原子事务 T1
+ C -> Copy : allocateOne(bookId)
+ Copy --> C : copyId 或 null
+ alt 成功分配可用复本
+  note right of Copy : AVAILABLE -> RESERVED
+  C -> Loan : createPending(readerId, bookId, copyId, null)
+  Loan --> C : borrowId
+  C --> UI : 返回待借出借阅记录
+ else 无可分配复本
+  C -> Slip : createWaiting(readerId, bookId)
+  Slip --> C : slipId
+  C -> Queue : create(slipId)
+  C --> UI : 返回预约单与预约记录
+ end
+ end
+end
+UI --> R : 展示处理结果
+note over C,Copy
+queryAvailable 仅用于查询；以 allocateOne 的原子结果为准。
+T1 创建失败则回滚复本状态，不留下孤立占用。
+end note
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title BookCopy 图书复本状态图
+state "可用\nAVAILABLE" as AVAILABLE
+state "已占用待借出\nRESERVED" as RESERVED
+state "借出中\nON_LOAN" as ON_LOAN
+[*] --> AVAILABLE : UC03 新书复本入库
+AVAILABLE --> RESERVED : UC01 直接借书或预约激活 A1\n/ allocateOne 成功
+RESERVED --> ON_LOAN : UC02 管理员确认借出
+ON_LOAN --> AVAILABLE : UC05 管理员确认归还
+note right of AVAILABLE
+归还后若立即激活预约，
+同一事务内继续转为 RESERVED。
+AVAILABLE 才计入可用馆藏。
+end note
+@enduml

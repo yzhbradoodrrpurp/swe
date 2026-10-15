@@ -1,0 +1,44 @@
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 共享顺序图 A1 按可用复本激活预约
+control "归还或入库控制对象" as Caller
+control ReservationController as C
+entity ReservationSlip as Slip
+entity BookCopy as Copy
+entity BorrowRecord as Loan
+entity ReservationRecord as Queue
+entity Reader as Reader
+Caller -> C : activate(bookId)
+C -> Slip : queryWaitingFIFO(bookId)
+Slip --> C : waitingSlips 按 createdAt、slipId 升序
+loop 按顺序逐单处理；库存用尽立即停止
+ C -> Copy : allocateOne(bookId)
+ Copy --> C : copyId 或 null
+ alt copyId 非空
+  C -> Loan : createPending(readerId, bookId, copyId, slipId)
+  Loan --> C : borrowId
+  C -> Slip : markReady(slipId)
+  C -> Queue : markHandled(slipId)
+  C -> Reader : get(readerId)
+  Reader --> C : 联系方式
+  C -> C : 将 slipId、读者、书目加入 noticeList
+ else copyId 为 null
+  break 无可用复本
+   note over C,Slip : 本单及剩余单保持 WAITING_STOCK
+  end
+ end
+end
+C --> Caller : noticeList（只含本次成功激活单）
+note over C,Queue
+本流程加入调用方的 T3 或 T4 原子事务。
+预约单、复本及借阅记录状态需一起更新。
+end note
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 借书 借出 报表协作类图
+top to bottom direction
+hide empty members
+class Book <<entity>>
+class BookCopy <<entity>>
+class BorrowController <<control>> {
++ submitBorrow(readerId, bookId): Result
+}
+class BorrowRecord <<entity>>
+class BorrowStat <<entity>>
+class BorrowUI <<boundary>> {
++ submitBorrow(readerId, bookId)
+}
+class LendController <<control>> {
++ getPending(): List
++ confirmLend(borrowId, copyId): Result
+}
+class LendUI <<boundary>> {
++ queryPending()
++ confirmLend(borrowId, copyId)
+}
+class Reader <<entity>>
+class ReportController <<control>> {
++ buildReport(start, end): BorrowStat
+}
+class ReportUI <<boundary>> {
++ requestReport(start, end)
+}
+class ReservationRecord <<entity>>
+class ReservationSlip <<entity>>
+BorrowUI ..> BorrowController
+LendUI ..> LendController
+ReportUI ..> ReportController
+BorrowController ..> Reader
+BorrowController ..> Book
+BorrowController ..> BookCopy
+BorrowController ..> BorrowRecord
+BorrowController ..> ReservationSlip
+BorrowController ..> ReservationRecord
+LendController ..> BorrowRecord
+LendController ..> BookCopy
+LendController ..> ReservationSlip
+ReportController ..> BorrowRecord
+ReportController ..> BorrowStat
+@enduml

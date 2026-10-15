@@ -1,0 +1,37 @@
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC04 生成借阅统计报表顺序图
+actor "馆长" as D
+boundary ReportUI as UI
+control ReportController as C
+entity BorrowRecord as Loan
+entity BorrowStat as Stat
+D -> UI : requestReport(start, end)
+UI -> C : buildReport(start, end)
+alt start >= end
+ C --> UI : 返回时间区间错误
+else 时间区间有效
+ C -> Loan : queryCompleted(start, end)
+ Loan --> C : completedRecords
+ C -> Stat : generate(completedRecords, start, end)
+ Stat --> C : report
+ alt completedRecords 非空
+  C --> UI : 借阅统计报表
+ else completedRecords 为空
+  C --> UI : 零值报表与暂无已完成借阅提示
+ end
+end
+UI --> D : 展示统计结果
+note over C,Loan
+只查询 COMPLETED 且 start <= returnedAt < end 的记录。
+不统计待借出、借出中或预约记录。
+end note
+@enduml

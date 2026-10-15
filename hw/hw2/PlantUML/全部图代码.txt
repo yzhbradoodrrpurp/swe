@@ -1,0 +1,658 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 图书借阅管理系统用例图
+left to right direction
+actor "读者" as Reader
+actor "图书管理员" as Librarian
+actor "图书采购人员" as Purchaser
+actor "馆长" as Director
+actor "外部通知服务" as Gateway
+rectangle "图书借阅管理系统" {
+ usecase "UC01 提交借书请求" as UC01
+ usecase "UC02 办理图书借出" as UC02
+ usecase "UC03 采购新书入库" as UC03
+ usecase "UC04 生成借阅统计报表" as UC04
+ usecase "UC05 办理图书归还" as UC05
+ usecase "UC_EXT01 通知预约读者" as EXT
+}
+Reader -- UC01
+Librarian -- UC02
+Librarian -- UC05
+Purchaser -- UC03
+Director -- UC04
+EXT -- Gateway
+EXT ..> UC03 : <<extend>>\n[成功激活预约]
+EXT ..> UC05 : <<extend>>\n[成功激活预约]
+note bottom of Gateway
+  外部服务被系统调用
+  不主动发起业务用例
+end note
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC01 提交借书请求顺序图
+actor "读者" as R
+boundary BorrowUI as UI
+control BorrowController as C
+entity BookCopy as Copy
+entity BorrowRecord as Loan
+entity ReservationSlip as Slip
+entity ReservationRecord as Queue
+R -> UI : submitBorrow(readerId, bookId)
+UI -> C : submitBorrow(readerId, bookId)
+C -> C : 校验读者权限和书目存在
+alt 校验不通过
+ C --> UI : 返回输入或权限错误
+else 输入有效
+ C -> Copy : queryAvailable(bookId)
+ Copy --> C : availableNum
+ group 原子事务 T1
+ C -> Copy : allocateOne(bookId)
+ Copy --> C : copyId 或 null
+ alt 成功分配可用复本
+  note right of Copy : AVAILABLE -> RESERVED
+  C -> Loan : createPending(readerId, bookId, copyId, null)
+  Loan --> C : borrowId
+  C --> UI : 返回待借出借阅记录
+ else 无可分配复本
+  C -> Slip : createWaiting(readerId, bookId)
+  Slip --> C : slipId
+  C -> Queue : create(slipId)
+  C --> UI : 返回预约单与预约记录
+ end
+ end
+end
+UI --> R : 展示处理结果
+note over C,Copy
+queryAvailable 仅用于查询；以 allocateOne 的原子结果为准。
+T1 创建失败则回滚复本状态，不留下孤立占用。
+end note
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC02 办理图书借出顺序图
+actor "图书管理员" as A
+boundary LendUI as UI
+control LendController as C
+entity BorrowRecord as Loan
+entity BookCopy as Copy
+entity ReservationSlip as Slip
+A -> UI : queryPending()
+UI -> C : getPending()
+C -> Loan : queryPending()
+Loan --> C : 待借出记录列表
+C --> UI : 列表
+UI --> A : 展示列表
+A -> UI : confirmLend(borrowId, copyId)
+UI -> C : confirmLend(borrowId, copyId)
+C -> Loan : get(borrowId)
+Loan --> C : loan 或 null
+C -> Copy : get(copyId)
+Copy --> C : copy 或 null
+alt 记录待借出 且复本匹配且 RESERVED
+ note over A,UI : 管理员核对实物及读者并确认交付
+ group 原子事务 T2
+  C -> Copy : markOnLoan(copyId)
+  C -> Loan : markOnLoan(borrowId, lentAt)
+  opt 借阅记录关联预约单
+   C -> Slip : markFulfilled(slipId)
+  end
+ end
+ C --> UI : 借出成功
+else 不存在或状态不合法或复本不匹配
+ C --> UI : 拒绝办理，不改变馆藏与记录
+end
+UI --> A : 展示结果
+note over C,Copy : 借出仅 RESERVED -> ON_LOAN，不再次扣减可用数量
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC03 采购新书入库顺序图
+actor "图书采购人员" as P
+boundary PurchaseUI as UI
+control PurchaseController as C
+entity Book as Book
+entity BookCopy as Copy
+control ReservationController as RC
+boundary NotifyBoundary as N
+P -> UI : registerArrival(bookInfo, copyIds)
+UI -> C : registerArrival(bookInfo, copyIds)
+C -> C : 校验入库复本非空且编号唯一
+alt 输入无效或复本重复入库
+ C --> UI : 拒绝入库，不增加馆藏
+else 入库数据合法
+ note over P,UI : 采购与到货是系统外实物活动，界面登记已到货新书
+ group 原子事务 T3
+  C -> Book : ensureBook(bookInfo)
+  Book --> C : bookId
+  C -> Copy : addCopies(bookId, copyIds)
+  note right of Copy : 新复本状态 AVAILABLE
+  C -> RC : activate(bookId)
+  ref over RC : 共享顺序图 预约激活 A1
+  RC --> C : noticeList
+ end
+ opt noticeList 非空，事务提交后
+  C -> N : sendReadyNotices(noticeList)
+  ref over N : UC_EXT01 通知预约读者
+  N --> C : 通知结果
+ end
+ C --> UI : 返回入库与预约激活结果
+end
+UI --> P : 展示结果
+note over C,RC : 激活数量不超过当前可用复本数；没有预约则仅增加馆藏
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC04 生成借阅统计报表顺序图
+actor "馆长" as D
+boundary ReportUI as UI
+control ReportController as C
+entity BorrowRecord as Loan
+entity BorrowStat as Stat
+D -> UI : requestReport(start, end)
+UI -> C : buildReport(start, end)
+alt start >= end
+ C --> UI : 返回时间区间错误
+else 时间区间有效
+ C -> Loan : queryCompleted(start, end)
+ Loan --> C : completedRecords
+ C -> Stat : generate(completedRecords, start, end)
+ Stat --> C : report
+ alt completedRecords 非空
+  C --> UI : 借阅统计报表
+ else completedRecords 为空
+  C --> UI : 零值报表与暂无已完成借阅提示
+ end
+end
+UI --> D : 展示统计结果
+note over C,Loan
+只查询 COMPLETED 且 start <= returnedAt < end 的记录。
+不统计待借出、借出中或预约记录。
+end note
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC05 办理图书归还顺序图
+actor "图书管理员" as A
+boundary ReturnUI as UI
+control ReturnController as C
+entity BorrowRecord as Loan
+entity BookCopy as Copy
+control ReservationController as RC
+boundary NotifyBoundary as N
+A -> UI : confirmReturn(borrowId, copyId)
+UI -> C : confirmReturn(borrowId, copyId)
+C -> Loan : get(borrowId)
+Loan --> C : loan 或 null
+C -> Copy : get(copyId)
+Copy --> C : copy 或 null
+alt 记录 ON_LOAN 且复本匹配且 ON_LOAN
+ note over A,UI : 管理员核对实物并确认收回
+ group 原子事务 T4
+  C -> Loan : complete(borrowId, returnedAt)
+  C -> Copy : release(copyId)
+  note right of Copy : ON_LOAN -> AVAILABLE
+  C -> RC : activate(bookId)
+  ref over RC : 共享顺序图 预约激活 A1
+  RC --> C : noticeList
+ end
+ opt noticeList 非空，事务提交后
+  C -> N : sendReadyNotices(noticeList)
+  ref over N : UC_EXT01 通知预约读者
+  N --> C : 通知结果
+ end
+ C --> UI : 返回归还与预约激活结果
+else 不存在或已归还或复本不匹配
+ C --> UI : 拒绝归还，不重复恢复馆藏
+end
+UI --> A : 展示结果
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 共享顺序图 A1 按可用复本激活预约
+control "归还或入库控制对象" as Caller
+control ReservationController as C
+entity ReservationSlip as Slip
+entity BookCopy as Copy
+entity BorrowRecord as Loan
+entity ReservationRecord as Queue
+entity Reader as Reader
+Caller -> C : activate(bookId)
+C -> Slip : queryWaitingFIFO(bookId)
+Slip --> C : waitingSlips 按 createdAt、slipId 升序
+loop 按顺序逐单处理；库存用尽立即停止
+ C -> Copy : allocateOne(bookId)
+ Copy --> C : copyId 或 null
+ alt copyId 非空
+  C -> Loan : createPending(readerId, bookId, copyId, slipId)
+  Loan --> C : borrowId
+  C -> Slip : markReady(slipId)
+  C -> Queue : markHandled(slipId)
+  C -> Reader : get(readerId)
+  Reader --> C : 联系方式
+  C -> C : 将 slipId、读者、书目加入 noticeList
+ else copyId 为 null
+  break 无可用复本
+   note over C,Slip : 本单及剩余单保持 WAITING_STOCK
+  end
+ end
+end
+C --> Caller : noticeList（只含本次成功激活单）
+note over C,Queue
+本流程加入调用方的 T3 或 T4 原子事务。
+预约单、复本及借阅记录状态需一起更新。
+end note
+@enduml
+
+
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC_EXT01 通知预约读者顺序图
+control "归还或入库控制对象" as C
+boundary NotifyBoundary as N
+actor "外部通知服务" as G
+C -> N : sendReadyNotices(noticeList)
+loop 每个本次激活的预约单
+ N -> N : 组装读者、书目、预约单号和可借提示
+ N -> G : send(contact, message)
+ G --> N : 成功或失败或超时
+ alt 通知成功
+  N -> N : 记录发送成功
+ else 通知失败或超时
+  N -> N : logFailure(slipId, reason)
+  note right of N : 保留预约与馆藏状态\n供后续人工补发
+ end
+end
+N --> C : 各条通知结果
+note over C,N : 业务事务已提交；通知失败不回滚入库、归还或预约激活
+@enduml
+
+
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 实体类图 属性 操作与关联
+top to bottom direction
+class Reader <<entity>> {
+- readerId: String
+- name: String
+- contact: String
++ get(readerId): Reader
++ canBorrow(readerId): Boolean
+}
+class Book <<entity>> {
+- bookId: String
+- isbn: String
+- title: String
++ ensureBook(bookInfo): String
++ exists(bookId): Boolean
+}
+class BookCopy <<entity>> {
+- copyId: String
+- bookId: String
+- status: CopyStatus
++ queryAvailable(bookId): Integer
++ allocateOne(bookId): String?
++ get(copyId): BookCopy
++ addCopies(bookId, copyIds)
++ markOnLoan(copyId)
++ release(copyId)
+}
+class BorrowRecord <<entity>> {
+- borrowId: String
+- readerId: String
+- bookId: String
+- copyId: String
+- slipId: String?
+- createdAt: DateTime
+- lentAt: DateTime?
+- returnedAt: DateTime?
+- status: BorrowStatus
++ createPending(readerId, bookId, copyId, slipId): String
++ get(borrowId): BorrowRecord
++ queryPending(): List
++ markOnLoan(borrowId, lentAt)
++ complete(borrowId, returnedAt)
++ queryCompleted(start, end): List
+}
+class ReservationSlip <<entity>> {
+- slipId: String
+- readerId: String
+- bookId: String
+- createdAt: DateTime
+- status: SlipStatus
++ createWaiting(readerId, bookId): String
++ queryWaitingFIFO(bookId): List
++ markReady(slipId)
++ markFulfilled(slipId)
+}
+class ReservationRecord <<entity>> {
+- reservationId: String
+- slipId: String
+- status: QueueStatus
++ create(slipId)
++ markHandled(slipId)
+}
+class BorrowStat <<entity>> {
+- statId: String
+- start: DateTime
+- end: DateTime
+- totalCompleted: Integer
+- byBook: Map
+- byReader: Map
++ generate(records, start, end): BorrowStat
+}
+Reader "1" -- "0..*" BorrowRecord : 发起
+Reader "1" -- "0..*" ReservationSlip : 提交
+Book "1" -- "0..*" BookCopy : 包含复本
+Book "1" -- "0..*" ReservationSlip : 被预约
+BookCopy "1" -- "0..*" BorrowRecord : 历史借阅
+Book "1" -- "0..*" BorrowRecord : 借阅书目
+ReservationSlip "0..1" -- "0..1" BorrowRecord : 激活后生成
+ReservationSlip "1" -- "1" ReservationRecord : 对应
+BorrowStat ..> BorrowRecord : 汇总已完成记录
+
+note bottom of BookCopy
+可用数量 = 本书目 AVAILABLE 复本数
+总馆藏 = AVAILABLE + RESERVED + ON_LOAN
+每个复本至多一个未完成借阅记录
+end note
+@enduml
+
+
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 借书 借出 报表协作类图
+top to bottom direction
+hide empty members
+class Book <<entity>>
+class BookCopy <<entity>>
+class BorrowController <<control>> {
++ submitBorrow(readerId, bookId): Result
+}
+class BorrowRecord <<entity>>
+class BorrowStat <<entity>>
+class BorrowUI <<boundary>> {
++ submitBorrow(readerId, bookId)
+}
+class LendController <<control>> {
++ getPending(): List
++ confirmLend(borrowId, copyId): Result
+}
+class LendUI <<boundary>> {
++ queryPending()
++ confirmLend(borrowId, copyId)
+}
+class Reader <<entity>>
+class ReportController <<control>> {
++ buildReport(start, end): BorrowStat
+}
+class ReportUI <<boundary>> {
++ requestReport(start, end)
+}
+class ReservationRecord <<entity>>
+class ReservationSlip <<entity>>
+BorrowUI ..> BorrowController
+LendUI ..> LendController
+ReportUI ..> ReportController
+BorrowController ..> Reader
+BorrowController ..> Book
+BorrowController ..> BookCopy
+BorrowController ..> BorrowRecord
+BorrowController ..> ReservationSlip
+BorrowController ..> ReservationRecord
+LendController ..> BorrowRecord
+LendController ..> BookCopy
+LendController ..> ReservationSlip
+ReportController ..> BorrowRecord
+ReportController ..> BorrowStat
+@enduml
+
+
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 归还 入库 预约通知协作类图
+top to bottom direction
+hide empty members
+class Book <<entity>>
+class BookCopy <<entity>>
+class BorrowRecord <<entity>>
+class NotifyBoundary <<boundary>> {
++ sendReadyNotices(noticeList): List
++ logFailure(slipId, reason)
+}
+interface NotifyGateway <<external>> {
++ send(contact, message): NotifyResult
+}
+class PurchaseController <<control>> {
++ registerArrival(bookInfo, copyIds): Result
+}
+class PurchaseUI <<boundary>> {
++ registerArrival(bookInfo, copyIds)
+}
+class Reader <<entity>>
+class ReservationController <<control>> {
++ activate(bookId): List<Notice>
+}
+class ReservationRecord <<entity>>
+class ReservationSlip <<entity>>
+class ReturnController <<control>> {
++ confirmReturn(borrowId, copyId): Result
+}
+class ReturnUI <<boundary>> {
++ confirmReturn(borrowId, copyId)
+}
+ReturnUI ..> ReturnController
+PurchaseUI ..> PurchaseController
+ReturnController ..> BorrowRecord
+ReturnController ..> BookCopy
+ReturnController ..> ReservationController
+ReturnController ..> NotifyBoundary
+PurchaseController ..> Book
+PurchaseController ..> BookCopy
+PurchaseController ..> ReservationController
+PurchaseController ..> NotifyBoundary
+ReservationController ..> ReservationSlip
+ReservationController ..> BookCopy
+ReservationController ..> BorrowRecord
+ReservationController ..> ReservationRecord
+ReservationController ..> Reader
+NotifyBoundary ..> NotifyGateway
+@enduml
+
+
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title BorrowRecord 借阅记录状态图
+state "待借出\nPENDING_LEND" as PENDING_LEND
+state "借出中\nON_LOAN" as ON_LOAN
+state "已完成\nCOMPLETED" as COMPLETED
+[*] --> PENDING_LEND : 可用复本分配成功 / 创建借阅记录
+PENDING_LEND --> ON_LOAN : UC02 管理员确认交付\n/ 记录 lentAt，复本转 ON_LOAN
+ON_LOAN --> COMPLETED : UC05 管理员确认收回\n/ 记录 returnedAt，释放复本
+note right of PENDING_LEND
+来源：直接借书或预约激活
+关联复本必须为 RESERVED
+end note
+note right of COMPLETED
+业务终态，历史记录保留用于报表
+无后续借出或归还转换
+end note
+@enduml
+
+
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 预约单与预约记录状态图
+state "ReservationSlip 预约单" as Slip {
+ state "待补货\nWAITING_STOCK" as WAITING_STOCK
+ state "待借出或可借阅\nREADY_TO_LEND" as READY_TO_LEND
+ state "已兑现\nFULFILLED" as FULFILLED
+ [*] --> WAITING_STOCK : 无可借复本 / 创建预约单
+ WAITING_STOCK --> READY_TO_LEND : UC03 入库或 UC05 归还\n[轮到本单且分配复本成功]\n/ 创建 PENDING_LEND 借阅记录
+ READY_TO_LEND --> FULFILLED : UC02 管理员确认对应记录借出
+}
+state "ReservationRecord 预约记录" as Record {
+ state "未处理\nWAITING" as WAITING
+ state "已处理\nHANDLED" as HANDLED
+ [*] --> WAITING : 创建预约单时同时创建
+ WAITING --> HANDLED : 预约单成功转 READY_TO_LEND
+}
+note bottom of Slip
+WAITING_STOCK 不占用复本。
+READY_TO_LEND 占用 RESERVED 复本。
+通知失败不改变状态；FULFILLED 保留历史。
+end note
+note bottom of Record
+HANDLED 表示已安排可借复本，
+不表示读者已归还图书。
+end note
+@enduml
+
+
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title BookCopy 图书复本状态图
+state "可用\nAVAILABLE" as AVAILABLE
+state "已占用待借出\nRESERVED" as RESERVED
+state "借出中\nON_LOAN" as ON_LOAN
+[*] --> AVAILABLE : UC03 新书复本入库
+AVAILABLE --> RESERVED : UC01 直接借书或预约激活 A1\n/ allocateOne 成功
+RESERVED --> ON_LOAN : UC02 管理员确认借出
+ON_LOAN --> AVAILABLE : UC05 管理员确认归还
+note right of AVAILABLE
+归还后若立即激活预约，
+同一事务内继续转为 RESERVED。
+AVAILABLE 才计入可用馆藏。
+end note
+@enduml

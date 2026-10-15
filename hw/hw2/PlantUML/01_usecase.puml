@@ -1,0 +1,39 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 图书借阅管理系统用例图
+left to right direction
+actor "读者" as Reader
+actor "图书管理员" as Librarian
+actor "图书采购人员" as Purchaser
+actor "馆长" as Director
+actor "外部通知服务" as Gateway
+rectangle "图书借阅管理系统" {
+ usecase "UC01 提交借书请求" as UC01
+ usecase "UC02 办理图书借出" as UC02
+ usecase "UC03 采购新书入库" as UC03
+ usecase "UC04 生成借阅统计报表" as UC04
+ usecase "UC05 办理图书归还" as UC05
+ usecase "UC_EXT01 通知预约读者" as EXT
+}
+Reader -- UC01
+Librarian -- UC02
+Librarian -- UC05
+Purchaser -- UC03
+Director -- UC04
+EXT -- Gateway
+EXT ..> UC03 : <<extend>>\n[成功激活预约]
+EXT ..> UC05 : <<extend>>\n[成功激活预约]
+note bottom of Gateway
+  外部服务被系统调用
+  不主动发起业务用例
+end note
+@enduml

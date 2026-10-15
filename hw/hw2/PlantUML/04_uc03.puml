@@ -1,0 +1,44 @@
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC03 采购新书入库顺序图
+actor "图书采购人员" as P
+boundary PurchaseUI as UI
+control PurchaseController as C
+entity Book as Book
+entity BookCopy as Copy
+control ReservationController as RC
+boundary NotifyBoundary as N
+P -> UI : registerArrival(bookInfo, copyIds)
+UI -> C : registerArrival(bookInfo, copyIds)
+C -> C : 校验入库复本非空且编号唯一
+alt 输入无效或复本重复入库
+ C --> UI : 拒绝入库，不增加馆藏
+else 入库数据合法
+ note over P,UI : 采购与到货是系统外实物活动，界面登记已到货新书
+ group 原子事务 T3
+  C -> Book : ensureBook(bookInfo)
+  Book --> C : bookId
+  C -> Copy : addCopies(bookId, copyIds)
+  note right of Copy : 新复本状态 AVAILABLE
+  C -> RC : activate(bookId)
+  ref over RC : 共享顺序图 预约激活 A1
+  RC --> C : noticeList
+ end
+ opt noticeList 非空，事务提交后
+  C -> N : sendReadyNotices(noticeList)
+  ref over N : UC_EXT01 通知预约读者
+  N --> C : 通知结果
+ end
+ C --> UI : 返回入库与预约激活结果
+end
+UI --> P : 展示结果
+note over C,RC : 激活数量不超过当前可用复本数；没有预约则仅增加馆藏
+@enduml

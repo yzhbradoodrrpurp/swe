@@ -1,0 +1,29 @@
+@startuml
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title UC_EXT01 通知预约读者顺序图
+control "归还或入库控制对象" as C
+boundary NotifyBoundary as N
+actor "外部通知服务" as G
+C -> N : sendReadyNotices(noticeList)
+loop 每个本次激活的预约单
+ N -> N : 组装读者、书目、预约单号和可借提示
+ N -> G : send(contact, message)
+ G --> N : 成功或失败或超时
+ alt 通知成功
+  N -> N : 记录发送成功
+ else 通知失败或超时
+  N -> N : logFailure(slipId, reason)
+  note right of N : 保留预约与馆藏状态\n供后续人工补发
+ end
+end
+N --> C : 各条通知结果
+note over C,N : 业务事务已提交；通知失败不回滚入库、归还或预约激活
+@enduml

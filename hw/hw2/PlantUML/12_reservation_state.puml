@@ -1,0 +1,36 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 预约单与预约记录状态图
+state "ReservationSlip 预约单" as Slip {
+ state "待补货\nWAITING_STOCK" as WAITING_STOCK
+ state "待借出或可借阅\nREADY_TO_LEND" as READY_TO_LEND
+ state "已兑现\nFULFILLED" as FULFILLED
+ [*] --> WAITING_STOCK : 无可借复本 / 创建预约单
+ WAITING_STOCK --> READY_TO_LEND : UC03 入库或 UC05 归还\n[轮到本单且分配复本成功]\n/ 创建 PENDING_LEND 借阅记录
+ READY_TO_LEND --> FULFILLED : UC02 管理员确认对应记录借出
+}
+state "ReservationRecord 预约记录" as Record {
+ state "未处理\nWAITING" as WAITING
+ state "已处理\nHANDLED" as HANDLED
+ [*] --> WAITING : 创建预约单时同时创建
+ WAITING --> HANDLED : 预约单成功转 READY_TO_LEND
+}
+note bottom of Slip
+WAITING_STOCK 不占用复本。
+READY_TO_LEND 占用 RESERVED 复本。
+通知失败不改变状态；FULFILLED 保留历史。
+end note
+note bottom of Record
+HANDLED 表示已安排可借复本，
+不表示读者已归还图书。
+end note
+@enduml

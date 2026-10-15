@@ -1,0 +1,98 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 15
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 65
+hide footbox
+title 实体类图 属性 操作与关联
+top to bottom direction
+class Reader <<entity>> {
+- readerId: String
+- name: String
+- contact: String
++ get(readerId): Reader
++ canBorrow(readerId): Boolean
+}
+class Book <<entity>> {
+- bookId: String
+- isbn: String
+- title: String
++ ensureBook(bookInfo): String
++ exists(bookId): Boolean
+}
+class BookCopy <<entity>> {
+- copyId: String
+- bookId: String
+- status: CopyStatus
++ queryAvailable(bookId): Integer
++ allocateOne(bookId): String?
++ get(copyId): BookCopy
++ addCopies(bookId, copyIds)
++ markOnLoan(copyId)
++ release(copyId)
+}
+class BorrowRecord <<entity>> {
+- borrowId: String
+- readerId: String
+- bookId: String
+- copyId: String
+- slipId: String?
+- createdAt: DateTime
+- lentAt: DateTime?
+- returnedAt: DateTime?
+- status: BorrowStatus
++ createPending(readerId, bookId, copyId, slipId): String
++ get(borrowId): BorrowRecord
++ queryPending(): List
++ markOnLoan(borrowId, lentAt)
++ complete(borrowId, returnedAt)
++ queryCompleted(start, end): List
+}
+class ReservationSlip <<entity>> {
+- slipId: String
+- readerId: String
+- bookId: String
+- createdAt: DateTime
+- status: SlipStatus
++ createWaiting(readerId, bookId): String
++ queryWaitingFIFO(bookId): List
++ markReady(slipId)
++ markFulfilled(slipId)
+}
+class ReservationRecord <<entity>> {
+- reservationId: String
+- slipId: String
+- status: QueueStatus
++ create(slipId)
++ markHandled(slipId)
+}
+class BorrowStat <<entity>> {
+- statId: String
+- start: DateTime
+- end: DateTime
+- totalCompleted: Integer
+- byBook: Map
+- byReader: Map
++ generate(records, start, end): BorrowStat
+}
+Reader "1" -- "0..*" BorrowRecord : 发起
+Reader "1" -- "0..*" ReservationSlip : 提交
+Book "1" -- "0..*" BookCopy : 包含复本
+Book "1" -- "0..*" ReservationSlip : 被预约
+BookCopy "1" -- "0..*" BorrowRecord : 历史借阅
+Book "1" -- "0..*" BorrowRecord : 借阅书目
+ReservationSlip "0..1" -- "0..1" BorrowRecord : 激活后生成
+ReservationSlip "1" -- "1" ReservationRecord : 对应
+BorrowStat ..> BorrowRecord : 汇总已完成记录
+
+note bottom of BookCopy
+可用数量 = 本书目 AVAILABLE 复本数
+总馆藏 = AVAILABLE + RESERVED + ON_LOAN
+每个复本至多一个未完成借阅记录
+end note
+@enduml
