@@ -4,9 +4,9 @@
 
 软件是：
 
-- **computer programs** that provide desired features when executed.
-- **data structures** that enable programs to adequately manipulate information
-- **descriptive information** that describes the operation and the use of programs
+- 程序 **computer programs** that provide desired features when executed.
+- 数据 **data structures** that enable programs to adequately manipulate information
+- 文档 **descriptive information** that describes the operation and the use of programs
 
 软件同时扮演两种角色：
 

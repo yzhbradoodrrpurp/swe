@@ -8,7 +8,7 @@ Software Engineering is the application of a systematic, disciplined, quantifiab
 
 **质量关注 → 过程 → 方法 → 工具**
 
-- **质量关注**是基础：团队始终要考虑交付的软件是否满足需求、能否可靠运行。
+- **质量关注（quality focus）**：团队始终要考虑交付的软件是否满足需求、能否可靠运行。
 - **过程（process）**规定要开展哪些活动、如何安排和检查工作。
 - **方法（methods）**回答具体“怎么做”，例如需求分析、设计建模、编码和测试的方法。
 - **工具（tools）**辅助执行，例如版本控制、测试框架和项目管理工具。
@@ -23,7 +23,7 @@ Software Engineering is the application of a systematic, disciplined, quantifiab
 4. construction
 5. deployment
 
-### 过程流
+### 过程流程
 
 | 页码                       | 方式                       | 图在表达什么                                                 |
 | -------------------------- | -------------------------- | ------------------------------------------------------------ |
@@ -71,10 +71,10 @@ Software Engineering is the application of a systematic, disciplined, quantifiab
 
 > 团队经常遇到“客户说不清需求”的问题，就可以记录一种需求沟通模式：
 >
-> > **适用情况**：涉及多类用户，需求还不明确。
-> > **问题**：不同用户的说法有冲突。
-> > **做法**：分别访谈，整理使用场景，再组织讨论确认。
-> > **结果**：得到一份已确认的需求清单，并标出仍有争议的部分
+> **适用情况**：涉及多类用户，需求还不明确。
+> **问题**：不同用户的说法有冲突。
+> **做法**：分别访谈，整理使用场景，再组织讨论确认。
+> **结果**：得到一份已确认的需求清单，并标出仍有争议的部分
 
 process pattern template:
 
@@ -89,7 +89,7 @@ process pattern template:
 
 ![process pattern](resources/process pattern.png)
 
- ## Sofeware Process Assessment
+ ## 软件过程评估
 
 团队可以检查自己的开发方式：项目是否有计划、变更是否受控、问题能否尽早发现。评估的目的，是找出薄弱环节，再决定先改进什么。
 
