@@ -35,7 +35,10 @@ Process model是更完整的**开发工作框架**。除了活动怎样衔接，
 
 ### Spiral Model
 
-螺旋模型将迭代开发和风险管理相结合，每个螺旋循环都包括planning, risk analysis, engineering, evaluation。
+螺旋模型将迭代开发和风险管理相结合，每个螺旋循环都包括：
+
+> $planning \rightarrow risk\ analysis \rightarrow engineering \rightarrow evaluation$
+>
 
 ![spiral](resources/spiral.png)
 

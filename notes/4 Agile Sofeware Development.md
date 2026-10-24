@@ -26,8 +26,8 @@ XP包含以下四个步骤：
 
 ## 别的Agile Software Development
 
-- ASD (Adaptive Software Development)
-- Dynamic Systems Development Method
-- Scrum Methodology
-- Lean Software Development
-- KanBan Software Development
+- ASD (Adaptive Software Development，自适应软件开发)：通过“推测（speculation）—协作（collaboration）—学习（learning）”循环开发；每轮根据反馈调整后续计划并发布增量。
+- Dynamic Systems Development Method（DSDM，动态系统开发方法）：先做可行性分析和基础规划，再通过迭代开发、评审与部署逐步交付系统。
+- Scrum Methodology（Scrum）：以 Sprint 为短周期，团队通过 Sprint Planning、Daily Scrum、Sprint Review 和 Retrospective 计划、检查并改进工作。
+- Lean Software Development（精益软件开发）：从客户角度定义价值、梳理价值流、建立顺畅流动、按需求拉动工作，并持续消除浪费、追求改进。
+- KanBan Software Development（看板开发）：用看板可视化工作状态，例如 Idea、To do、Doing、Done，帮助团队看清任务流转。
