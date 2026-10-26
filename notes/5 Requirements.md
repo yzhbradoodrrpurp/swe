@@ -100,6 +100,13 @@
 
 **例子：**开发医院系统前，先整理患者、医生、科室、预约等通用概念和典型流程，再将这些领域知识用于具体医院项目。
 
+有以下几种分析模型 (analysis model)：
+
+- 数据建模 data modeling
+- 流程建模 flow-oriented modeling
+- 场景建模 scenario-based modeling
+- 面向对象建模 object-oriented modeling
+
 ### 数据建模 (Data Modeling)
 
 Data Modeling（数据建模）：识别系统中有哪些重要数据对象、它们有什么属性，以及对象之间有什么关系。它描述的是系统里的数据结构，不着重描述数据如何被处理。
@@ -164,6 +171,11 @@ DFD 通常从**上下文图/Level 0**开始，把整个系统画成一个过程�
 ### 面向对象建模 (Object-Oriented Modeling)
 
 面向对象分析把需求转化为**分析类及其协作关系**。分析阶段描述业务概念和系统应有的行为，不应把分析模型写成代码结构或数据库设计。
+
+一个类的组成包含：
+
+1. attributes: A collection of data values that describe a class
+2. operations: Also called methods and services , define behaviors
 
 #### 分析类与类图
 

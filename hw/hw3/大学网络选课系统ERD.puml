@@ -1,0 +1,69 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName PingFang SC
+skinparam defaultFontSize 16
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome true
+skinparam linetype ortho
+hide circle
+hide methods
+title 大学网络选课系统 ERD
+entity "Student 学生" as Student {
+ * student_id : String <<PK>>
+ --
+ name : String
+ email : String
+ major : String
+}
+entity "Enrollment 选课记录" as Enrollment {
+ * enrollment_id : String <<PK>>
+ --
+ * student_id : String <<FK>>
+ * section_id : String <<FK>>
+ enrolled_at : DateTime
+ status : EnrollmentStatus
+ grade : Decimal [可空]
+}
+entity "Section 教学班" as Section {
+ * section_id : String <<PK>>
+ --
+ * course_id : String <<FK>>
+ * term_id : String <<FK>>
+ * instructor_id : String <<FK>>
+ section_no : String
+ capacity : Integer
+}
+entity "Course 课程" as Course {
+ * course_id : String <<PK>>
+ --
+ title : String
+ credits : Decimal
+ description : Text
+}
+entity "Instructor 教师" as Instructor {
+ * instructor_id : String <<PK>>
+ --
+ name : String
+ email : String
+}
+entity "Term 学期" as Term {
+ * term_id : String <<PK>>
+ --
+ academic_year : String
+ term_name : String
+ starts_on : Date
+ ends_on : Date
+}
+entity "Prerequisite 先修关系" as Prerequisite {
+ * course_id : String <<PK,FK>>
+ * prerequisite_course_id : String <<PK,FK>>
+}
+Student ||--o{ Enrollment : 提交
+Section ||--o{ Enrollment : 被选择
+Course ||--o{ Section : 开设
+Term ||--o{ Section : 包含
+Instructor ||--o{ Section : 负责
+Course ||--o{ Prerequisite : 目标课程
+Course ||--o{ Prerequisite : 先修课程
+@enduml
