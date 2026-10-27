@@ -1,0 +1,58 @@
+{
+  "total": 13,
+  "passed": 13,
+  "records": [
+    {
+      "name": "U01 Tanner 模型生成",
+      "passed": true
+    },
+    {
+      "name": "U02 Tanner 计算结果",
+      "passed": true
+    },
+    {
+      "name": "U03 修改使旧模型失效",
+      "passed": true
+    },
+    {
+      "name": "U04 严格不等式明确阻止",
+      "passed": true
+    },
+    {
+      "name": "U05 销量约束后重算",
+      "passed": true
+    },
+    {
+      "name": "U06/07 无可行解 显示",
+      "passed": true
+    },
+    {
+      "name": "U06/07 目标无界 显示",
+      "passed": true
+    },
+    {
+      "name": "U08 增加活动",
+      "passed": true
+    },
+    {
+      "name": "U09 矩阵维数同步增加",
+      "passed": true
+    },
+    {
+      "name": "U10 项目导出导入往返",
+      "passed": true
+    },
+    {
+      "name": "U11 问题陈述导入",
+      "passed": true
+    },
+    {
+      "name": "U12 900 像素无页面横向溢出",
+      "passed": true
+    },
+    {
+      "name": "U13 计算记录包含模型快照及换基过程并可导出",
+      "passed": true
+    }
+  ]
+}

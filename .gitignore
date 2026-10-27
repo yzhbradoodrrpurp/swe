@@ -9,3 +9,5 @@
 # Editor swap files
 *.swp
 *.swo
+
+.playwright-cli/

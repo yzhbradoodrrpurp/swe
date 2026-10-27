@@ -1,0 +1,708 @@
+{
+  "seed": 20261026,
+  "method": "二维可行顶点枚举，独立于单纯形法",
+  "total": 100,
+  "passed": 100,
+  "records": [
+    {
+      "case": 1,
+      "sense": "max",
+      "expected": 3.4064800588879733,
+      "actual": 3.406480058887974,
+      "passed": true
+    },
+    {
+      "case": 2,
+      "sense": "min",
+      "expected": -24.327508955728263,
+      "actual": -24.327508955728263,
+      "passed": true
+    },
+    {
+      "case": 3,
+      "sense": "max",
+      "expected": 3.0635615350523344,
+      "actual": 3.063561535052334,
+      "passed": true
+    },
+    {
+      "case": 4,
+      "sense": "min",
+      "expected": 0.19353658030740917,
+      "actual": 0.19353658030740917,
+      "passed": true
+    },
+    {
+      "case": 5,
+      "sense": "max",
+      "expected": 30.050309641752392,
+      "actual": 30.050309641752392,
+      "passed": true
+    },
+    {
+      "case": 6,
+      "sense": "min",
+      "expected": 20.692608082387597,
+      "actual": 20.692608082387594,
+      "passed": true
+    },
+    {
+      "case": 7,
+      "sense": "max",
+      "expected": 22.11747746350011,
+      "actual": 22.11747746350011,
+      "passed": true
+    },
+    {
+      "case": 8,
+      "sense": "min",
+      "expected": -27.83584133395925,
+      "actual": -27.83584133395925,
+      "passed": true
+    },
+    {
+      "case": 9,
+      "sense": "max",
+      "expected": 49.77271429321263,
+      "actual": 49.77271429321263,
+      "passed": true
+    },
+    {
+      "case": 10,
+      "sense": "min",
+      "expected": 2.8622072787644957,
+      "actual": 2.862207278764499,
+      "passed": true
+    },
+    {
+      "case": 11,
+      "sense": "max",
+      "expected": 13.681192374089733,
+      "actual": 13.681192374089733,
+      "passed": true
+    },
+    {
+      "case": 12,
+      "sense": "min",
+      "expected": -100,
+      "actual": -100,
+      "passed": true
+    },
+    {
+      "case": 13,
+      "sense": "max",
+      "expected": -10.088687770301476,
+      "actual": -10.088687770301476,
+      "passed": true
+    },
+    {
+      "case": 14,
+      "sense": "min",
+      "expected": -30,
+      "actual": -30,
+      "passed": true
+    },
+    {
+      "case": 15,
+      "sense": "max",
+      "expected": -22.491827955134212,
+      "actual": -22.491827955134212,
+      "passed": true
+    },
+    {
+      "case": 16,
+      "sense": "min",
+      "expected": 4.139523787019579,
+      "actual": 4.139523787019578,
+      "passed": true
+    },
+    {
+      "case": 17,
+      "sense": "max",
+      "expected": -2.1178328414447605,
+      "actual": -2.1178328414447605,
+      "passed": true
+    },
+    {
+      "case": 18,
+      "sense": "min",
+      "expected": -6.708712485246361,
+      "actual": -6.708712485246359,
+      "passed": true
+    },
+    {
+      "case": 19,
+      "sense": "max",
+      "expected": -14.700182943425787,
+      "actual": -14.700182943425787,
+      "passed": true
+    },
+    {
+      "case": 20,
+      "sense": "min",
+      "expected": -66.4107543066144,
+      "actual": -66.4107543066144,
+      "passed": true
+    },
+    {
+      "case": 21,
+      "sense": "max",
+      "expected": 19.829222202999517,
+      "actual": 19.829222202999517,
+      "passed": true
+    },
+    {
+      "case": 22,
+      "sense": "min",
+      "expected": -48.75547237647697,
+      "actual": -48.75547237647695,
+      "passed": true
+    },
+    {
+      "case": 23,
+      "sense": "max",
+      "expected": 20,
+      "actual": 20,
+      "passed": true
+    },
+    {
+      "case": 24,
+      "sense": "min",
+      "expected": 13.272943176329136,
+      "actual": 13.272943176329136,
+      "passed": true
+    },
+    {
+      "case": 25,
+      "sense": "max",
+      "expected": 40,
+      "actual": 40,
+      "passed": true
+    },
+    {
+      "case": 26,
+      "sense": "min",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 27,
+      "sense": "max",
+      "expected": -25.277269094483927,
+      "actual": -25.277269094483923,
+      "passed": true
+    },
+    {
+      "case": 28,
+      "sense": "min",
+      "expected": -50,
+      "actual": -50,
+      "passed": true
+    },
+    {
+      "case": 29,
+      "sense": "max",
+      "expected": 6.104417212726549,
+      "actual": 6.104417212726549,
+      "passed": true
+    },
+    {
+      "case": 30,
+      "sense": "min",
+      "expected": 2.0168465495109555,
+      "actual": 2.0168465495109555,
+      "passed": true
+    },
+    {
+      "case": 31,
+      "sense": "max",
+      "expected": 2.061323053436354,
+      "actual": 2.061323053436353,
+      "passed": true
+    },
+    {
+      "case": 32,
+      "sense": "min",
+      "expected": -17.86902879124197,
+      "actual": -17.869028791241966,
+      "passed": true
+    },
+    {
+      "case": 33,
+      "sense": "max",
+      "expected": 51.753378801746294,
+      "actual": 51.75337880174629,
+      "passed": true
+    },
+    {
+      "case": 34,
+      "sense": "min",
+      "expected": 25.950034670485184,
+      "actual": 25.950034670485184,
+      "passed": true
+    },
+    {
+      "case": 35,
+      "sense": "max",
+      "expected": 9.26338124598066,
+      "actual": 9.26338124598066,
+      "passed": true
+    },
+    {
+      "case": 36,
+      "sense": "min",
+      "expected": -10.868477390125571,
+      "actual": -10.86847739012557,
+      "passed": true
+    },
+    {
+      "case": 37,
+      "sense": "max",
+      "expected": -13.291266606422141,
+      "actual": -13.291266606422141,
+      "passed": true
+    },
+    {
+      "case": 38,
+      "sense": "min",
+      "expected": -20.283583551761694,
+      "actual": -20.283583551761694,
+      "passed": true
+    },
+    {
+      "case": 39,
+      "sense": "max",
+      "expected": 9.952926012221724,
+      "actual": 9.952926012221724,
+      "passed": true
+    },
+    {
+      "case": 40,
+      "sense": "min",
+      "expected": 0.3896609743125736,
+      "actual": 0.3896609743125736,
+      "passed": true
+    },
+    {
+      "case": 41,
+      "sense": "max",
+      "expected": 8.694991295755079,
+      "actual": 8.694991295755083,
+      "passed": true
+    },
+    {
+      "case": 42,
+      "sense": "min",
+      "expected": 2.876658343244344,
+      "actual": 2.876658343244344,
+      "passed": true
+    },
+    {
+      "case": 43,
+      "sense": "max",
+      "expected": -0.88235172489658,
+      "actual": -0.88235172489658,
+      "passed": true
+    },
+    {
+      "case": 44,
+      "sense": "min",
+      "expected": 4.1544441524893045,
+      "actual": 4.1544441524893045,
+      "passed": true
+    },
+    {
+      "case": 45,
+      "sense": "max",
+      "expected": 6.113736313288374,
+      "actual": 6.113736313288374,
+      "passed": true
+    },
+    {
+      "case": 46,
+      "sense": "min",
+      "expected": -1.9365563651339879,
+      "actual": -1.9365563651339879,
+      "passed": true
+    },
+    {
+      "case": 47,
+      "sense": "max",
+      "expected": 30,
+      "actual": 30,
+      "passed": true
+    },
+    {
+      "case": 48,
+      "sense": "min",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 49,
+      "sense": "max",
+      "expected": 40,
+      "actual": 40,
+      "passed": true
+    },
+    {
+      "case": 50,
+      "sense": "min",
+      "expected": -18.338736182705567,
+      "actual": -18.338736182705567,
+      "passed": true
+    },
+    {
+      "case": 51,
+      "sense": "max",
+      "expected": 40,
+      "actual": 40.000000000000014,
+      "passed": true
+    },
+    {
+      "case": 52,
+      "sense": "min",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 53,
+      "sense": "max",
+      "expected": 22.54809669374178,
+      "actual": 22.548096693741776,
+      "passed": true
+    },
+    {
+      "case": 54,
+      "sense": "min",
+      "expected": -100,
+      "actual": -100,
+      "passed": true
+    },
+    {
+      "case": 55,
+      "sense": "max",
+      "expected": 5.396026672329754,
+      "actual": 5.396026672329754,
+      "passed": true
+    },
+    {
+      "case": 56,
+      "sense": "min",
+      "expected": -60,
+      "actual": -60.00000000000004,
+      "passed": true
+    },
+    {
+      "case": 57,
+      "sense": "max",
+      "expected": 28.14686698303558,
+      "actual": 28.14686698303558,
+      "passed": true
+    },
+    {
+      "case": 58,
+      "sense": "min",
+      "expected": 1.374190792441368,
+      "actual": 1.374190792441368,
+      "passed": true
+    },
+    {
+      "case": 59,
+      "sense": "max",
+      "expected": 13.973228280013426,
+      "actual": 13.973228280013428,
+      "passed": true
+    },
+    {
+      "case": 60,
+      "sense": "min",
+      "expected": -17.668722933274694,
+      "actual": -17.668722933274694,
+      "passed": true
+    },
+    {
+      "case": 61,
+      "sense": "max",
+      "expected": 2.2583521279351153,
+      "actual": 2.25835212793511,
+      "passed": true
+    },
+    {
+      "case": 62,
+      "sense": "min",
+      "expected": -0.6082584011834115,
+      "actual": -0.6082584011834116,
+      "passed": true
+    },
+    {
+      "case": 63,
+      "sense": "max",
+      "expected": 50,
+      "actual": 50,
+      "passed": true
+    },
+    {
+      "case": 64,
+      "sense": "min",
+      "expected": -40,
+      "actual": -40,
+      "passed": true
+    },
+    {
+      "case": 65,
+      "sense": "max",
+      "expected": 58.09399684083958,
+      "actual": 58.0939968408396,
+      "passed": true
+    },
+    {
+      "case": 66,
+      "sense": "min",
+      "expected": -10,
+      "actual": -10,
+      "passed": true
+    },
+    {
+      "case": 67,
+      "sense": "max",
+      "expected": 22.094116554781795,
+      "actual": 22.0941165547818,
+      "passed": true
+    },
+    {
+      "case": 68,
+      "sense": "min",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 69,
+      "sense": "max",
+      "expected": 50,
+      "actual": 50,
+      "passed": true
+    },
+    {
+      "case": 70,
+      "sense": "min",
+      "expected": 2.7203685017302632,
+      "actual": 2.7203685017302632,
+      "passed": true
+    },
+    {
+      "case": 71,
+      "sense": "max",
+      "expected": 10.015855025655279,
+      "actual": 10.01585502565528,
+      "passed": true
+    },
+    {
+      "case": 72,
+      "sense": "min",
+      "expected": 10.068512672558427,
+      "actual": 10.068512672558427,
+      "passed": true
+    },
+    {
+      "case": 73,
+      "sense": "max",
+      "expected": 2.370436357939616,
+      "actual": 2.370436357939616,
+      "passed": true
+    },
+    {
+      "case": 74,
+      "sense": "min",
+      "expected": -18.10642891473669,
+      "actual": -18.106428914736686,
+      "passed": true
+    },
+    {
+      "case": 75,
+      "sense": "max",
+      "expected": 40,
+      "actual": 40.000000000000014,
+      "passed": true
+    },
+    {
+      "case": 76,
+      "sense": "min",
+      "expected": -14.76399911288172,
+      "actual": -14.763999112881713,
+      "passed": true
+    },
+    {
+      "case": 77,
+      "sense": "max",
+      "expected": 3.9813536883198792,
+      "actual": 3.981353688319878,
+      "passed": true
+    },
+    {
+      "case": 78,
+      "sense": "min",
+      "expected": -8.144603017019108,
+      "actual": -8.144603017019106,
+      "passed": true
+    },
+    {
+      "case": 79,
+      "sense": "max",
+      "expected": -1.4743513244902715,
+      "actual": -1.4743513244902715,
+      "passed": true
+    },
+    {
+      "case": 80,
+      "sense": "min",
+      "expected": -17.052020895398325,
+      "actual": -17.052020895398325,
+      "passed": true
+    },
+    {
+      "case": 81,
+      "sense": "max",
+      "expected": 27.743367403978482,
+      "actual": 27.743367403978482,
+      "passed": true
+    },
+    {
+      "case": 82,
+      "sense": "min",
+      "expected": -10,
+      "actual": -10.000000000000004,
+      "passed": true
+    },
+    {
+      "case": 83,
+      "sense": "max",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 84,
+      "sense": "min",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 85,
+      "sense": "max",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "case": 86,
+      "sense": "min",
+      "expected": 2.774828685990845,
+      "actual": 2.774828685990845,
+      "passed": true
+    },
+    {
+      "case": 87,
+      "sense": "max",
+      "expected": 11.107048218976706,
+      "actual": 11.107048218976708,
+      "passed": true
+    },
+    {
+      "case": 88,
+      "sense": "min",
+      "expected": 1.0184371483046561,
+      "actual": 1.0184371483046561,
+      "passed": true
+    },
+    {
+      "case": 89,
+      "sense": "max",
+      "expected": 10,
+      "actual": 10,
+      "passed": true
+    },
+    {
+      "case": 90,
+      "sense": "min",
+      "expected": -40,
+      "actual": -39.99999999999997,
+      "passed": true
+    },
+    {
+      "case": 91,
+      "sense": "max",
+      "expected": 18.974753255024552,
+      "actual": 18.974753255024552,
+      "passed": true
+    },
+    {
+      "case": 92,
+      "sense": "min",
+      "expected": -44.4038856335499,
+      "actual": -44.4038856335499,
+      "passed": true
+    },
+    {
+      "case": 93,
+      "sense": "max",
+      "expected": 42.64597991337068,
+      "actual": 42.64597991337068,
+      "passed": true
+    },
+    {
+      "case": 94,
+      "sense": "min",
+      "expected": 2.3354641930976263,
+      "actual": 2.335464193097626,
+      "passed": true
+    },
+    {
+      "case": 95,
+      "sense": "max",
+      "expected": 8.680986986017638,
+      "actual": 8.68098698601764,
+      "passed": true
+    },
+    {
+      "case": 96,
+      "sense": "min",
+      "expected": -7.090680656498298,
+      "actual": -7.090680656498298,
+      "passed": true
+    },
+    {
+      "case": 97,
+      "sense": "max",
+      "expected": 40,
+      "actual": 40,
+      "passed": true
+    },
+    {
+      "case": 98,
+      "sense": "min",
+      "expected": 15.38465833896771,
+      "actual": 15.38465833896771,
+      "passed": true
+    },
+    {
+      "case": 99,
+      "sense": "max",
+      "expected": -8.80337829189375,
+      "actual": -8.80337829189375,
+      "passed": true
+    },
+    {
+      "case": 100,
+      "sense": "min",
+      "expected": 6.755358056211844,
+      "actual": 6.755358056211844,
+      "passed": true
+    }
+  ]
+}

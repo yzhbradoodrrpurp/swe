@@ -1,0 +1,157 @@
+{
+  "total": 16,
+  "passed": 16,
+  "records": [
+    {
+      "id": "T01",
+      "name": "故事初始模型",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        400,
+        80
+      ],
+      "objective": 2320,
+      "iterations": 2
+    },
+    {
+      "id": "T02",
+      "name": "增加销量约束重新计算",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        150,
+        50
+      ],
+      "objective": 950,
+      "iterations": 2
+    },
+    {
+      "id": "T03",
+      "name": "教师 Tanner 原型",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        2000,
+        1000
+      ],
+      "objective": 3500,
+      "iterations": 2
+    },
+    {
+      "id": "T04",
+      "name": "最小化与大于等于约束",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        1.5,
+        0.5
+      ],
+      "objective": 2.25,
+      "iterations": 3
+    },
+    {
+      "id": "T05",
+      "name": "等式约束",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        3,
+        0
+      ],
+      "objective": 6,
+      "iterations": 3
+    },
+    {
+      "id": "T06",
+      "name": "负右端值与阶段一",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        5
+      ],
+      "objective": 5,
+      "iterations": 3
+    },
+    {
+      "id": "T07",
+      "name": "无可行解",
+      "passed": true,
+      "status": "infeasible"
+    },
+    {
+      "id": "T08",
+      "name": "无界问题",
+      "passed": true,
+      "status": "unbounded"
+    },
+    {
+      "id": "T09",
+      "name": "冗余等式与零行",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        2,
+        0
+      ],
+      "objective": 2,
+      "iterations": 3
+    },
+    {
+      "id": "T10",
+      "name": "退化循环经典算例",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "objective": 1,
+      "iterations": 7
+    },
+    {
+      "id": "T11",
+      "name": "非有限数值拒绝",
+      "passed": true,
+      "status": "rejected"
+    },
+    {
+      "id": "T12",
+      "name": "维数不匹配拒绝",
+      "passed": true,
+      "status": "rejected"
+    },
+    {
+      "id": "T13",
+      "name": "严格不等式拒绝",
+      "passed": true,
+      "status": "rejected"
+    },
+    {
+      "id": "T14",
+      "name": "迭代上限不冒充最优",
+      "passed": true,
+      "status": "iteration_limit"
+    },
+    {
+      "id": "T15",
+      "name": "零目标与多最优模型",
+      "passed": true,
+      "status": "optimal",
+      "x": [
+        0,
+        0
+      ],
+      "objective": 0,
+      "iterations": 0
+    },
+    {
+      "id": "T16",
+      "name": "零行导致不可行",
+      "passed": true,
+      "status": "infeasible"
+    }
+  ]
+}

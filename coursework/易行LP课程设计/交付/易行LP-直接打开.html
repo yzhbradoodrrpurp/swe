@@ -1,0 +1,187 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>易行 LP · 线性规划建模与求解</title><style>:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#17312d;background:#f3f6f3;font-size:15px}*{box-sizing:border-box}body{margin:0}header{padding:22px 4%;background:#153f37;color:#fff;display:flex;justify-content:space-between;align-items:center}.brand{font-size:26px;font-weight:750}.tag{margin-left:22px;color:#c9ddd6}main{max-width:1500px;margin:auto;padding:26px 4%}.toolbar{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:24px}h1{font-size:27px;margin:0 0 9px}p{margin:8px 0;color:#5c716b;line-height:1.7}h2{font-size:20px;margin:0}h3{font-size:16px;margin:0}button,select,input,textarea{font:inherit}button{cursor:pointer;background:#fff;border:1px solid #afc3bb;padding:9px 14px;border-radius:5px;color:#173f35}button:hover{background:#e8f1ed}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:#1c6552;color:#fff;border-color:#1c6552}.primary:hover{background:#134c3d}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.actions label{display:flex;gap:5px;align-items:center}select{padding:8px;border:1px solid #b4c7bf;background:white;border-radius:4px}input{padding:8px;min-width:68px;width:100%;border:1px solid #c7d4ce;border-radius:3px}input:focus,textarea:focus,select:focus{outline:2px solid #669e88;outline-offset:1px}.workspace{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(480px,1.65fr);gap:24px}section{background:#fff;padding:24px;border:1px solid #d8e2db;border-radius:8px}.section-head,.model-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}.wizard>.section-head{margin-top:22px}.target{display:flex;align-items:center;gap:20px;margin:20px 0}.target label{display:flex;gap:10px;align-items:center}textarea{width:100%;padding:14px;border:1px solid #bccdc4;border-radius:5px;resize:vertical;line-height:1.8;color:#263f35;background:#fcfdfb}#narrative{height:390px}.block{display:block;margin-top:20px;font-weight:600}.block textarea{margin-top:10px;height:140px;font-weight:400}.hint{font-size:13px;color:#6c7b74}#variables{display:flex;gap:10px;flex-wrap:wrap}.variable{display:flex;gap:8px;align-items:center;padding:7px;background:#f3f6f3;border-radius:5px}.variable input{width:125px}.delete{border:0;padding:4px 7px;color:#9b4539;background:transparent}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{padding:10px 8px;border-bottom:1px solid #dce5df;text-align:left;vertical-align:middle}th{background:#eef4ef;color:#4c655b;font-size:13px}td input{min-width:74px}td .name{min-width:120px}td select{min-width:65px}.model-head{margin-top:24px}pre{white-space:pre-wrap;font-family:ui-monospace,"Hiragino Sans GB",monospace;line-height:1.9;padding:16px;background:#f0f5f0;border-radius:5px;font-size:16px;min-height:120px}.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px}#modelState{font-size:13px;color:#6a766f}#message{margin-top:16px;min-height:24px;color:#9b4539}#message.ok{color:#1c6552}footer{font-size:12px;color:#6d7d73;text-align:center;padding:25px}dialog{border:1px solid #bccfc2;border-radius:10px;padding:26px;width:min(900px,94vw);max-height:90vh;color:#17312d}dialog::backdrop{background:#0d251dcc}.result-score{font-size:36px;color:#1c6552;margin:14px 0}.status-error{color:#aa4e37}.result-actions{text-align:right;margin-top:20px}.trace{max-height:330px;overflow:auto}.trace td{font-variant-numeric:tabular-nums}details{margin:18px 0}summary{cursor:pointer;font-weight:600}#resultBody p{color:#4d665a}.notice{background:#fff4da;padding:12px;border-radius:5px}@media(max-width:1000px){.toolbar{display:block}.actions{justify-content:flex-start;margin-top:18px}.workspace{grid-template-columns:1fr}#narrative{height:200px}header{gap:20px}.tag{display:none}}
+</style></head><body>
+<header><div><span class="brand">易行 LP</span><span class="tag">线性规划建模与求解</span></div><div>易治行 · 2023141220023</div></header>
+<main><div class="toolbar"><div><h1>从问题陈述到规划方案</h1><p>人工确认模型，计算交给工具。所有决策变量均为非负连续变量。</p></div><div class="actions"><label>示例 <select id="example"><option value="tanner">教师原型 · Tanner</option><option value="original">故事 · 初始模型</option><option value="revised">故事 · 补充销量约束</option><option value="min">最小化问题</option><option value="infeasible">无可行解</option><option value="unbounded">无界问题</option></select></label><button id="loadExample">载入</button><button id="save">导出项目</button><button id="openProject">导入项目</button><input id="projectFile" type="file" accept=".json" hidden></div></div>
+<div class="workspace"><section class="statement"><div class="section-head"><h2>01 问题陈述</h2><button id="importText">导入文本</button><input id="textFile" type="file" accept=".txt,text/plain" hidden></div><textarea id="narrative" aria-label="问题陈述" placeholder="写下业务目标、已知资源、约束条件和假设。"></textarea><label class="block">建模假设与审核记录<textarea id="assumptions" aria-label="建模假设" placeholder="例如：单位利润固定，活动水平可连续变化，销售上限由用户给定。"></textarea></label><p class="hint">导入仅载入文字，不自动识别目标或约束；请结合业务事实人工审核。</p></section>
+<section class="wizard"><h2>02 建模向导</h2><div class="target"><label>目标 <select id="sense"><option value="max">max 最大化</option><option value="min">min 最小化</option></select></label><span>目标值 z</span></div><div class="section-head"><h3>竞争性活动</h3><button id="addVariable">＋ 活动</button></div><div id="variables"></div><div class="section-head"><h3>资源与约束</h3><button id="addConstraint">＋ 约束</button></div><p class="hint">表内均可编辑。≤、≥、= 可求解；严格不等式需先由你确认处理方式。</p><div class="scroll"><table id="coefficients"></table></div><div class="model-head"><h3>数学模型</h3><button class="primary" id="build">建模</button></div><pre id="modelText">请检查输入后点击“建模”。</pre><div class="bottom"><span id="modelState">尚未建模</span><button class="primary" id="solve" disabled>计算规划方案</button></div></section></div>
+<div id="message" role="status" aria-live="polite"></div><footer>本地运行，无需账号或网络 · 单纯形法 · 不提供整数规划、自动业务判断或销售预测</footer></main>
+<dialog id="result"><div class="section-head"><h2>规划方案</h2><button id="closeResult">关闭</button></div><div id="resultBody"></div><div class="result-actions"><button id="exportResult">导出计算记录</button></div></dialog>
+<script>
+/* 易行 LP — 两阶段单纯形法；所有变量非负、连续。无外部运行依赖。 */
+(function (root) {
+'use strict';
+const EPS = 1e-9;
+class LPModel {
+  constructor(data) {
+    if (!data || !['max','min'].includes(data.sense)) throw Error('目标方向必须为 max 或 min');
+    if (!Array.isArray(data.c) || data.c.length < 1 || data.c.length > 20) throw Error('变量数应为 1～20');
+    if (!Array.isArray(data.constraints) || data.constraints.length < 1 || data.constraints.length > 40) throw Error('约束数应为 1～40');
+    const finite = v => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= 1e9;
+    if (!data.c.every(finite)) throw Error('目标系数须为有限数字，绝对值不超过 10⁹');
+    for (const [i,r] of data.constraints.entries()) {
+      if (!r || !Array.isArray(r.a) || r.a.length !== data.c.length || !r.a.every(finite) || !finite(r.b) || !['<=','>=','='].includes(r.op)) throw Error(`约束 ${i+1} 的维数、关系符或数字不合法`);
+    }
+    this.sense=data.sense; this.c=[...data.c];
+    this.constraints=data.constraints.map(r=>({a:[...r.a],op:r.op,b:r.b}));
+  }
+  toJSON(){ return {sense:this.sense,c:[...this.c],constraints:this.constraints.map(r=>({...r,a:[...r.a]}))}; }
+  standardize(){
+    const A=[],b=[];
+    for(const r of this.constraints){
+      if(r.op !== '>='){A.push([...r.a]);b.push(r.b);}
+      if(r.op !== '<='){A.push(r.a.map(v=>-v));b.push(-r.b);}
+    }
+    return {A,b,c:this.c.map(v=>this.sense==='max'?v:-v)};
+  }
+  check(x){
+    const lhs=this.constraints.map(r=>r.a.reduce((s,v,j)=>s+v*x[j],0));
+    const residuals=lhs.map((v,i)=>{const r=this.constraints[i];return r.op==='<='?r.b-v:r.op==='>='?v-r.b:-Math.abs(v-r.b);});
+    const tolerance = (v,b) => 1e-7*(1+Math.abs(v)+Math.abs(b));
+    const feasible=x.every(v=>Number.isFinite(v)&&v>=-1e-7) && residuals.every((v,i)=>v>=-tolerance(lhs[i],this.constraints[i].b));
+    return {lhs,residuals,feasible};
+  }
+}
+class SimplexSolver {
+  solve(model,{maxIterations=2000}={}){
+    if(!(model instanceof LPModel)) model=new LPModel(model);
+    const {A,b,c}=model.standardize(); const m=b.length,n=c.length;
+    const D=Array.from({length:m+2},()=>Array(n+2).fill(0));
+    const B=Array.from({length:m},(_,i)=>n+i),N=Array.from({length:n},(_,j)=>j);N.push(-1);
+    for(let i=0;i<m;i++){for(let j=0;j<n;j++)D[i][j]=A[i][j];D[i][n]=-1;D[i][n+1]=b[i];}
+    for(let j=0;j<n;j++)D[m][j]=-c[j];D[m+1][n]=1;
+    const trace=[];let iterations=0;
+    const name=v=>v===-1?'a':v<n?`x${v+1}`:`s${v-n+1}`;
+    const snapshot=(phase,enter=null,leave=null)=>{trace.push({phase,iteration:iterations,enter,leave,basis:B.map(name),columns:[...N.map(name),'RHS'],tableau:D.map(r=>[...r])});};
+    snapshot('初始表');
+    const pivot=(r,s,phase)=>{
+      if(iterations>=maxIterations) throw Error('ITERATION_LIMIT');
+      const enter=name(N[s]),leave=name(B[r]),inv=1/D[r][s];
+      for(let i=0;i<m+2;i++)if(i!==r)for(let j=0;j<n+2;j++)if(j!==s)D[i][j]-=D[r][j]*D[i][s]*inv;
+      for(let j=0;j<n+2;j++)if(j!==s)D[r][j]*=inv;
+      for(let i=0;i<m+2;i++)if(i!==r)D[i][s]*=-inv;
+      D[r][s]=inv;[B[r],N[s]]=[N[s],B[r]];iterations++;snapshot(phase,enter,leave);
+    };
+    const simplex=phase=>{
+      const row=phase===1?m+1:m;
+      while(true){
+        // Bland 规则：选择编号最小的可改善变量，平比值时选择编号最小的基变量。
+        let s=-1;for(let j=0;j<=n;j++)if(!(phase===2&&N[j]===-1)&&D[row][j]<-EPS&&(s===-1||N[j]<N[s]))s=j;
+        if(s===-1)return true;
+        let r=-1;
+        for(let i=0;i<m;i++)if(D[i][s]>EPS){
+          if(r===-1 || D[i][n+1]/D[i][s]<D[r][n+1]/D[r][s]-EPS || (Math.abs(D[i][n+1]/D[i][s]-D[r][n+1]/D[r][s])<=EPS&&B[i]<B[r]))r=i;
+        }
+        if(r===-1)return false;pivot(r,s,`阶段 ${phase}`);
+      }
+    };
+    const finish=(status,extra={})=>({status,iterations,trace,...extra});
+    try{
+      let r=0;for(let i=1;i<m;i++)if(D[i][n+1]<D[r][n+1])r=i;
+      if(D[r][n+1]<-EPS){
+        pivot(r,n,'阶段 1 初始化');
+        if(!simplex(1)||D[m+1][n+1]<-EPS||Math.abs(D[m+1][n+1])>EPS)return finish('infeasible');
+        for(let i=0;i<m;i++)if(B[i]===-1){
+          let s=-1;for(let j=0;j<=n;j++)if(N[j]!==-1&&Math.abs(D[i][j])>EPS&&(s===-1||N[j]<N[s]))s=j;
+          if(s!==-1)pivot(i,s,'移出人工变量');
+        }
+      }
+      if(!simplex(2))return finish('unbounded');
+      const x=Array(n).fill(0);for(let i=0;i<m;i++)if(B[i]<n&&B[i]>=0)x[B[i]]=Math.abs(D[i][n+1])<EPS?0:D[i][n+1];
+      const objective=model.c.reduce((sum,v,j)=>sum+v*x[j],0),checks=model.check(x);
+      if(!Number.isFinite(objective)||!checks.feasible||D.some(r=>r.some(v=>!Number.isFinite(v))))return finish('numerical_error');
+      return finish('optimal',{x,objective,checks});
+    }catch(e){if(e.message==='ITERATION_LIMIT')return finish('iteration_limit');throw e;}
+  }
+}
+const api={LPModel,SimplexSolver,EPS};if(typeof module!=='undefined'&&module.exports)module.exports=api;root.LPCore=api;
+})(typeof window==='undefined'?globalThis:window);
+
+</script><script>
+(function(root){
+const original={sense:'max',c:[5,4],constraints:[{a:[1,1.25],op:'<=',b:500},{a:[1,0],op:'<=',b:400},{a:[0,1],op:'<=',b:300}]};
+const revised={...original,constraints:[...original.constraints,{a:[1,0],op:'<=',b:150},{a:[0,1],op:'<=',b:50}]};
+const examples={original,revised,min:{sense:'min',c:[1,1.5],constraints:[{a:[1,3],op:'>=',b:3},{a:[1,1],op:'>=',b:2}]},infeasible:{sense:'max',c:[1],constraints:[{a:[1],op:'<=',b:1},{a:[1],op:'>=',b:2}]},unbounded:{sense:'max',c:[1,1],constraints:[{a:[1,-1],op:'<=',b:0}]}};
+if(typeof module!=='undefined'&&module.exports)module.exports=examples;root.LPExamples=examples;
+})(typeof window==='undefined'?globalThis:window);
+
+</script><script>
+'use strict';
+const $=id=>document.getElementById(id),{LPModel,SimplexSolver}=LPCore;
+const clone=x=>JSON.parse(JSON.stringify(x));
+const fmt=v=>Math.abs(v)<1e-8?'0':Number(v.toPrecision(9)).toString();
+const tanner={sense:'max',c:[3,-2.5],constraints:[{a:[2,-1],op:'<=',b:3000},{a:[1,-1],op:'<=',b:1000}]};
+const examples={...LPExamples,tanner};
+class ModelRepository{
+  download(name,data,type='application/json'){
+    const blob=new Blob([typeof data==='string'?data:JSON.stringify(data,null,2)],{type});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  async read(file){if(!file) return null;if(file.size>1024*1024)throw Error('文件超过 1 MB，请缩小后导入');return file.text();}
+}
+class ModelView{
+  render(project,onChange){
+    $('sense').value=project.model.sense;$('narrative').value=project.narrative;$('assumptions').value=project.assumptions;
+    $('variables').replaceChildren();project.names.forEach((name,j)=>{
+      const div=document.createElement('div');div.className='variable';const label=document.createElement('span');label.textContent=`x${j+1}`;
+      const input=this.input(name,'text',`活动 ${j+1} 名称`);input.oninput=()=>{project.names[j]=input.value;onChange();};
+      const del=document.createElement('button');del.textContent='×';del.className='delete';del.title='删除活动';del.onclick=()=>{if(project.names.length===1)return;project.names.splice(j,1);project.model.c.splice(j,1);project.model.constraints.forEach(r=>r.a.splice(j,1));this.render(project,onChange);onChange();};div.append(label,input,del);$('variables').append(div);
+    });
+    const table=$('coefficients');table.replaceChildren();const tr=document.createElement('tr');
+    for(const text of ['资源 / 约束',...project.names.map((v,j)=>`${v||'活动'} x${j+1}`),'关系','限制','']){const th=document.createElement('th');th.textContent=text;tr.append(th);}table.append(tr);
+    project.model.constraints.forEach((r,i)=>{
+      const row=document.createElement('tr'),nameCell=document.createElement('td'),name=this.input(project.resourceNames[i],'text',`约束 ${i+1} 名称`);name.className='name';name.oninput=()=>{project.resourceNames[i]=name.value;onChange();};nameCell.append(name);row.append(nameCell);
+      r.a.forEach((v,j)=>{const td=document.createElement('td'),input=this.input(v,'number',`约束 ${i+1} 活动 ${j+1} 系数`);input.oninput=()=>{r.a[j]=input.value===''?null:Number(input.value);onChange();};td.append(input);row.append(td);});
+      const opCell=document.createElement('td'),op=document.createElement('select');op.setAttribute('aria-label',`约束 ${i+1} 关系`);for(const value of ['<=','<','=','>=','>']){const o=document.createElement('option');o.value=value;o.textContent=({'<=':'≤','>=':'≥'})[value]||value;op.append(o);}op.value=r.op;op.onchange=()=>{r.op=op.value;onChange();};opCell.append(op);row.append(opCell);
+      const bCell=document.createElement('td'),b=this.input(r.b,'number',`约束 ${i+1} 限制`);b.oninput=()=>{r.b=b.value===''?null:Number(b.value);onChange();};bCell.append(b);row.append(bCell);
+      const deleteCell=document.createElement('td'),del=document.createElement('button');del.className='delete';del.textContent='×';del.title='删除约束';del.onclick=()=>{if(project.model.constraints.length===1)return;project.model.constraints.splice(i,1);project.resourceNames.splice(i,1);this.render(project,onChange);onChange();};deleteCell.append(del);row.append(deleteCell);table.append(row);
+    });
+    const profit=document.createElement('tr'),title=document.createElement('td');title.textContent='单位利润 / 成本';profit.append(title);
+    project.model.c.forEach((v,j)=>{const td=document.createElement('td'),input=this.input(v,'number',`目标系数 ${j+1}`);input.oninput=()=>{project.model.c[j]=input.value===''?null:Number(input.value);onChange();};td.append(input);profit.append(td);});table.append(profit);
+  }
+  input(value,type,label){const x=document.createElement('input');x.type=type;if(type==='number')x.step='any';x.value=value??'';x.setAttribute('aria-label',label);if(type==='text')x.maxLength=80;return x;}
+  formula(model){const term=a=>a.map((v,j)=>`${j&&v>=0?'+ ':''}${v} x${j+1}`).join(' ');return [`${model.sense} z = ${term(model.c)}`,...model.constraints.map(r=>`${term(r.a)} ${r.op} ${r.b}`),model.c.map((_,j)=>`x${j+1} ≥ 0`).join('，')].join('\n');}
+  showResult(result,project){
+    const body=$('resultBody');body.replaceChildren();
+    const add=(tag,text,cls)=>{const el=document.createElement(tag);el.textContent=text;if(cls)el.className=cls;body.append(el);return el;};
+    const labels={optimal:'已得到最优解',infeasible:'无可行解：约束条件相互冲突',unbounded:'目标无界：不存在有限最优值',iteration_limit:'达到迭代上限：未完成求解',numerical_error:'数值异常：请检查量纲、系数范围和约束'};
+    add('p',labels[result.status],result.status==='optimal'?'':'status-error');
+    if(result.status==='optimal'){
+      add('div',`${project.model.sense} z = ${fmt(result.objective)}`,'result-score');
+      const lines=result.x.map((v,j)=>`${project.names[j]}（x${j+1}）= ${fmt(v)}`);add('pre',lines.join('\n'));
+      const table=document.createElement('table');let header=document.createElement('tr');for(const s of ['资源 / 约束','左端值','限制','余量 / 等式误差']){const th=document.createElement('th');th.textContent=s;header.append(th);}table.append(header);
+      project.model.constraints.forEach((r,i)=>{const tr=document.createElement('tr');for(const v of [project.resourceNames[i],fmt(result.checks.lhs[i]),`${r.op} ${r.b}`,fmt(result.checks.residuals[i])]){const td=document.createElement('td');td.textContent=v;tr.append(td);}table.append(tr);});body.append(table);
+      add('p','结果已代回原始约束检查。余量不等同于影子价格；本工具未进行灵敏度分析。');
+    }
+    add('p',`共 ${result.iterations} 次换基。原始模型与本次结果一并保存在导出记录中。`);
+    const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='查看两阶段单纯形法迭代记录';details.append(summary);
+    const wrap=document.createElement('div');wrap.className='trace';
+    for(const step of result.trace){const p=document.createElement('p');p.textContent=`${step.phase} · 第 ${step.iteration} 次换基${step.enter?` · 入基 ${step.enter}，出基 ${step.leave}`:''}`;wrap.append(p);const table=document.createElement('table');const rows=[['基 / 目标',...step.columns],...step.tableau.map((r,i)=>[step.basis[i]||(i===step.basis.length?'原目标':'辅助目标'),...r.map(fmt)])];for(const r of rows){const tr=document.createElement('tr');for(const v of r){const td=document.createElement('td');td.textContent=v;tr.append(td);}table.append(tr);}wrap.append(table);}details.append(wrap);body.append(details);
+    add('p','本结果针对非负连续变量。若业务要求整数数量，不能直接四舍五入后宣称最优。','notice');$('result').showModal();
+  }
+}
+class SolveController{
+  constructor(view,solver,repository){this.view=view;this.solver=solver;this.repository=repository;this.project=null;this.built=null;this.lastResult=null;}
+  notify(msg,ok=false){$('message').textContent=msg;$('message').className=ok?'ok':'';}
+  invalidate(){this.built=null;this.lastResult=null;$('solve').disabled=true;$('modelState').textContent='输入已变更，请重新建模';$('modelText').textContent='当前输入尚未生成数学模型。';}
+  load(key){const model=clone(examples[key]);this.project={schema:1,model,names:model.c.map((_,i)=>`活动${i+1}`),resourceNames:model.constraints.map((_,i)=>`资源${i+1}`),narrative:'请填写问题陈述。',assumptions:'所有变量非负且连续；参数为确定值。'};
+    if(key==='tanner'){this.project.names=['玩具','A+B组合部件'];this.project.resourceNames=['A部件','B部件'];this.project.narrative='G.A. Tanner 公司每生产一件玩具获得 3 美元利润，每件玩具消耗 2 个 A 部件和 1 个 B 部件。A 每日供应上限为 3000，B 为 1000。公司可自行生产 A+B 组合，每组同时获得 1 个 A 和 1 个 B，成本 2.5 美元。应安排多少玩具与组合部件，使净利润最大？';this.project.assumptions+=' 组合部件按 A、B 等量生产；资源行的负系数表示补充资源。';}
+    if(key==='original'||key==='revised'){this.project.names=['橡皮鸭','橡皮鱼'];this.project.resourceNames=['橡胶','鸭产量上限','鱼产量上限',...(key==='revised'?['鸭销量上限','鱼销量上限']:[])];this.project.narrative='老张建立生产组合模型，小明手工计算。鸭利润 5 美元，鱼利润 4 美元；以故事第 4 页模型为基准，橡胶约束为 x1+1.25x2≤500，产量上限为 400 和 300。'+(key==='revised'?'审核后增加鸭销量≤150、鱼销量≤50。':'初始模型暂未加入销量限制。');this.project.assumptions+=' 统一 x1=鸭、x2=鱼；故事第 8 页目标系数与第 4 页不一致，本例按第 4 页及文字利润取 5、4。';}
+    this.view.render(this.project,()=>this.invalidate());this.invalidate();this.notify('示例已载入，请审核后建模。',true);
+  }
+  build(){try{if(this.project.model.constraints.some(r=>['<','>'].includes(r.op)))throw Error('严格不等式不能直接交给本求解器。请确认业务边界后改为 ≤、≥ 或 =，软件不会自动替换。');this.built=new LPModel(this.project.model);$('modelText').textContent=this.view.formula(this.built);$('solve').disabled=false;$('modelState').textContent='模型已生成，可计算';this.notify('建模成功。请核对目标、单位、约束和假设。',true);}catch(e){this.invalidate();this.notify(e.message);}}
+  solve(){if(!this.built)return;try{this.lastResult={project:clone(this.project),result:this.solver.solve(this.built)};this.view.showResult(this.lastResult.result,this.lastResult.project);this.notify('本次计算已完成。',true);}catch(e){this.notify(e.message);}}
+  async importProject(file){try{const text=await this.repository.read(file);if(text===null)return;const p=JSON.parse(text);new LPModel(p.model);if(p.schema!==1||!Array.isArray(p.names)||p.names.length!==p.model.c.length||!p.names.every(v=>typeof v==='string'&&v.length<=80)||!Array.isArray(p.resourceNames)||p.resourceNames.length!==p.model.constraints.length||!p.resourceNames.every(v=>typeof v==='string'&&v.length<=80)||typeof p.narrative!=='string'||typeof p.assumptions!=='string')throw Error('项目格式或名称维数不合法');this.project=clone(p);this.view.render(this.project,()=>this.invalidate());this.invalidate();this.notify('项目已导入，请重新建模。',true);}catch(e){this.notify(`导入失败：${e.message}`);}}
+}
+const controller=new SolveController(new ModelView(),new SimplexSolver(),new ModelRepository());
+$('loadExample').onclick=()=>controller.load($('example').value);$('build').onclick=()=>controller.build();$('solve').onclick=()=>controller.solve();
+$('sense').onchange=()=>{controller.project.model.sense=$('sense').value;controller.invalidate();};
+for(const id of ['narrative','assumptions'])$(id).oninput=()=>{controller.project[id]=$(id).value;controller.invalidate();};
+$('addVariable').onclick=()=>{const p=controller.project;if(p.model.c.length>=20)return controller.notify('最多支持 20 个活动');p.names.push(`活动${p.names.length+1}`);p.model.c.push(0);p.model.constraints.forEach(r=>r.a.push(0));controller.view.render(p,()=>controller.invalidate());controller.invalidate();};
+$('addConstraint').onclick=()=>{const p=controller.project;if(p.model.constraints.length>=40)return controller.notify('最多支持 40 条原始约束');p.resourceNames.push(`资源${p.resourceNames.length+1}`);p.model.constraints.push({a:p.model.c.map(()=>0),op:'<=',b:0});controller.view.render(p,()=>controller.invalidate());controller.invalidate();};
+$('closeResult').onclick=()=>$('result').close();
+$('save').onclick=()=>controller.repository.download('易行LP项目.json',controller.project);
+$('openProject').onclick=()=>$('projectFile').click();$('projectFile').onchange=async e=>{await controller.importProject(e.target.files[0]);e.target.value='';};
+$('importText').onclick=()=>$('textFile').click();$('textFile').onchange=async e=>{try{const text=await controller.repository.read(e.target.files[0]);if(text!==null){controller.project.narrative=text;$('narrative').value=text;controller.invalidate();controller.notify('文本已导入，请人工提取建模信息。',true);}}catch(err){controller.notify(err.message);}e.target.value='';};
+$('exportResult').onclick=()=>{if(controller.lastResult)controller.repository.download('易行LP计算记录.json',controller.lastResult);};
+controller.load('tanner');
+
+</script></body></html>
